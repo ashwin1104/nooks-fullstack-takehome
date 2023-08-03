@@ -137,9 +137,9 @@ const WatchSession: React.FC = () => {
             Switch to New Video
           </Button>
         </Box>
-        <VideoPlayer url={youtubeLink} playPause={playPause} seek={seek} isPlaying={isPlaying} timestamp={timestamp} />;
+        <VideoPlayer url={youtubeLink} playPause={playPause} seek={seek} isPlaying={isPlaying} timestamp={timestamp} />
       </>
-    );
+    )
   }
 
   return null;
