@@ -1,64 +1,83 @@
-import { Box, Button } from "@mui/material";
-import React, { useRef, useState } from "react";
-import ReactPlayer from "react-player";
+import { Box, Slider } from "@mui/material";
+import React, { useRef, useState, useEffect } from "react";
+import YouTube from "react-youtube"; 
 
 interface VideoPlayerProps {
   url: string;
   hideControls?: boolean;
+  playPause: (play: boolean, time:number) => void;
+  seek: (time: number) => void;
+  isPlaying: boolean;
+  timestamp: number;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
-  const [hasJoined, setHasJoined] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-  const player = useRef<ReactPlayer>(null);
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, playPause, seek, isPlaying, timestamp }) => {
+  const [duration, setDuration] = useState<number | 0>(0);
+  const [tempTime, setTempTime] = useState<number | 0>(0);
 
-  const handleReady = () => {
-    setIsReady(true);
+  const player = useRef<any>(null);
+
+  const handleReady = async () => {
+    const lengthOfVideo = await player.current?.internalPlayer.getDuration()
+    if (player.current)
+    {
+        player.current.internalPlayer.seekTo(timestamp, true)
+        setTimeout(() => {
+            player.current.internalPlayer.pauseVideo();
+            handlePause();
+        }, 1500) // TODO: timeout is hardcoded for now. goal: if others are paused and someone new joins, the video should not automatically unpause for everyone. ideally, find a way to pause right after buffering finishes. 
+    }
+    setDuration(lengthOfVideo)
+    setTempTime(timestamp)
   };
+
+  useEffect(() => {
+    const timer = setInterval(async () => {
+        const newTime = await player.current.internalPlayer.getCurrentTime();
+        setTempTime(newTime)
+    }, 1000);
+
+    return () => {
+        clearInterval(timer)
+    }
+  }, [])
+
+
+  useEffect(() => {
+    if (tempTime > 0)
+    {
+        setTempTime(timestamp)
+        player.current.internalPlayer.seekTo(timestamp)
+    }
+  }, [timestamp])
+
+  useEffect(() => {
+    if (isPlaying)
+    {
+        player.current?.internalPlayer.playVideo();
+    }
+    else {
+        player.current?.internalPlayer.pauseVideo();
+    }
+  }, [isPlaying])
 
   const handleEnd = () => {
     console.log("Video ended");
   };
 
-  const handleSeek = (seconds: number) => {
-    // Ideally, the seek event would be fired whenever the user moves the built in Youtube video slider to a new timestamp.
-    // However, the youtube API no longer supports seek events (https://github.com/cookpete/react-player/issues/356), so this no longer works
-
-    // You'll need to find a different way to detect seeks (or just write your own seek slider and replace the built in Youtube one.)
-    // Note that when you move the slider, you still get play, pause, buffer, and progress events, can you use those?
-
-    console.log(
-      "This never prints because seek decetion doesn't work: ",
-      seconds
-    );
+  const handlePlay = async () => {
+        const time = await player.current?.internalPlayer.getCurrentTime()
+        playPause(true, time)
   };
 
-  const handlePlay = () => {
-    console.log(
-      "User played video at time: ",
-      player.current?.getCurrentTime()
-    );
+  const handlePause = async () => {
+        const time = await player.current?.internalPlayer.getCurrentTime()
+        playPause(false, time)
   };
 
-  const handlePause = () => {
-    console.log(
-      "User paused video at time: ",
-      player.current?.getCurrentTime()
-    );
-  };
-
-  const handleBuffer = () => {
-    console.log("Video buffered");
-  };
-
-  const handleProgress = (state: {
-    played: number;
-    playedSeconds: number;
-    loaded: number;
-    loadedSeconds: number;
-  }) => {
-    console.log("Video progress: ", state);
-  };
+const handleSeek = (event:Event, newValue: number | number[]) => {
+    seek(((newValue as number)/100)*duration) // TODO: magic number
+}
 
   return (
     <Box
@@ -72,38 +91,28 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ url, hideControls }) => {
       <Box
         width="100%"
         height="100%"
-        display={hasJoined ? "flex" : "none"}
+        display="flex"
         flexDirection="column"
       >
-        <ReactPlayer
-          ref={player}
-          url={url}
-          playing={hasJoined}
-          controls={!hideControls}
-          onReady={handleReady}
-          onEnded={handleEnd}
-          onSeek={handleSeek}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onBuffer={handleBuffer}
-          onProgress={handleProgress}
-          width="100%"
-          height="100%"
-          style={{ pointerEvents: hideControls ? "none" : "auto" }}
+        <YouTube
+            ref={player}
+            videoId={url.substr(17)}
+            onReady={handleReady}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onEnd={handleEnd}
+            opts={{
+                height: "400%", // TODO: this works for my browser but super arbitrary
+                width: "100%",
+                playerVars: {
+                    autoplay: 0,
+                    controls: 0,
+                },
+            }}
         />
       </Box>
-      {!hasJoined && isReady && (
-        // Youtube doesn't allow autoplay unless you've interacted with the page already
-        // So we make the user click "Join Session" button and then start playing the video immediately after
-        // This is necessary so that when people join a session, they can seek to the same timestamp and start watching the video with everyone else
-        <Button
-          variant="contained"
-          size="large"
-          onClick={() => setHasJoined(true)}
-        >
-          Watch Session
-        </Button>
-      )}
+      <Slider aria-label="Seeker" value={100*(tempTime/duration)} onChange={handleSeek} // TODO: magic number
+      /> 
     </Box>
   );
 };

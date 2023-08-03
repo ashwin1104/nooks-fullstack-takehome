@@ -1,16 +1,43 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Box, Button, TextField } from "@mui/material";
-import { v4 as uuidv4 } from "uuid";
 
 const CreateSession: React.FC = () => {
   const navigate = useNavigate();
   const [newUrl, setNewUrl] = useState("");
 
+  const validateYoutubeLink = async (link:string) => {
+    if (!link) // TODO: better validation
+    {
+        return false
+    }
+    return true
+  } 
+
   const createSession = async () => {
+    if (!validateYoutubeLink(newUrl))
+    {
+        // TODO: logging
+        return
+    }
+
+    const youtubeLink = newUrl
     setNewUrl("");
-    const sessionId = uuidv4();
-    navigate(`/watch/${sessionId}`);
+
+    const response = await fetch('http://localhost:9000/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ youtubeLink }),
+      });
+    const responseJson = await response.json();
+    if (!responseJson.success || !responseJson.result)
+    {
+        console.log(`Failed to create session.`)
+        return
+    }
+    navigate(`/watch/${responseJson.result.sessionId}`);
   };
 
   return (
