@@ -96,7 +96,7 @@ const handleSeek = (event:Event, newValue: number | number[]) => {
       >
         <YouTube
             ref={player}
-            videoId={url.substr(17)}
+            videoId={url.substr(17)} // TODO: hardcoded
             onReady={handleReady}
             onPlay={handlePlay}
             onPause={handlePause}
