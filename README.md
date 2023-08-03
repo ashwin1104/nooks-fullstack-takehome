@@ -14,16 +14,16 @@ Make sure you have `git` and `npm` installed.
 
 ### Status for Required Functionality
 
-- [ x ] **Creating a session**. Any user should be able to create a session to watch a given Youtube video.
-- [ x ] **Joining a session**. Any user should be able to join a session created by another user using the shareable session link.
-- [ x ] **Playing/pausing** the video. When a participant pauses the video, it should pause for everyone. When a participant plays the video, it should start playing for everyone.
-- [ x ] **“Seek”**. When someone jumps to a certain time in the video it should jump to that time for everyone.
-- [ x ] **Late to the party**... Everything should stay synced even if a user joins the watch party late (e.g. the video is already playing)
-- [ x ] **Player controls.** All the player controls (e.g. play, pause, and seek) should be intuitive and behave as expected. For play, pause & seek operations you can use the built-in YouTube controls or disable the YouTube controls and build your own UI (including a slider for the seek operation)
+- [x] **Creating a session**. Any user should be able to create a session to watch a given Youtube video.
+- [x] **Joining a session**. Any user should be able to join a session created by another user using the shareable session link.
+- [x] **Playing/pausing** the video. When a participant pauses the video, it should pause for everyone. When a participant plays the video, it should start playing for everyone.
+- [x] **“Seek”**. When someone jumps to a certain time in the video it should jump to that time for everyone.
+- [x] **Late to the party**... Everything should stay synced even if a user joins the watch party late (e.g. the video is already playing)
+- [x] **Player controls.** All the player controls (e.g. play, pause, and seek) should be intuitive and behave as expected. For play, pause & seek operations you can use the built-in YouTube controls or disable the YouTube controls and build your own UI (including a slider for the seek operation)
 
 ### Bonus Functionality
 
-- [ x ] **Realtime** **Switching**. When a session user switches the session to a different youtube video, it will update for everyone.
+- [x] **Realtime** **Switching**. When a session user switches the session to a different youtube video, it will update for everyone.
 
 ### Next Steps Towards Preventing Issues That May Be Encountered in Real-World Usage
 
