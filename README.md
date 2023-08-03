@@ -38,3 +38,4 @@ This solution can be improved upon in many ways:
 - General logging for more visibility.
 - Formatting and stylistic choices
 - Documentation
+- Cleaner repository structure
